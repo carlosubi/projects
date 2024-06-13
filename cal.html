@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .calculator {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            margin-top: 10px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-controls button {
+            width: 30px;
+            height: 30px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .quantity-controls button:hover {
+            background-color: #0056b3;
+        }
+
+        .quantity-controls input {
+            width: 50px;
+            text-align: center;
+            margin: 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        #results {
+            margin-top: 20px;
+        }
+
+        #results p {
+            margin: 0;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Savings Calculator</h1>
+        <div id="jobRolesContainer">
+            <table id="rolesTable">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Number of Professionals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be added dynamically here -->
+                </tbody>
+            </table>
+        </div>
+        <button onclick="calculateSavings()">Calculate Savings</button>
+        <div id="results">
+            <p><span id="savingsResult"></span></p>
+        </div>
+    </div>
+    <script>
+        const professionals = [
+            { role: "Front End Developer", inhouse: 165480, nearshore: 116787 },
+            { role: "Back End Developer", inhouse: 211140, nearshore: 136661 },
+            { role: "Full Stack Developer", inhouse: 213360, nearshore: 116323 },
+            { role: "Mobile Developer", inhouse: 236880, nearshore: 129223 },
+            { role: "UX/Ui Designer", inhouse: 161880, nearshore: 112787 },
+            { role: "DevOps Engineer", inhouse: 224700, nearshore: 149168 },
+            { role: "QA Engineer", inhouse: 161700, nearshore: 115144 },
+            { role: "Data Engineer", inhouse: 242760, nearshore: 111624 },
+            { role: "Project Manager", inhouse: 200340, nearshore: 131335 }
+        ];
+
+        function populateRoleTable() {
+            const tableBody = document.querySelector('#rolesTable tbody');
+            professionals.forEach(professional => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-role', professional.role);
+                row.innerHTML = `
+                    <td>${professional.role}</td>
+                    <td>
+                        <div class="quantity-controls">
+                            <button type="button" onclick="adjustTableQuantity(this, -1)">-</button>
+                            <input type="number" class="roleQuantity" value="0" readonly>
+                            <button type="button" onclick="adjustTableQuantity(this, 1)">+</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function adjustTableQuantity(button, amount) {
+            const quantityInput = button.parentElement.querySelector('.roleQuantity');
+            let currentValue = parseInt(quantityInput.value);
+            currentValue = isNaN(currentValue) ? 0 : currentValue;
+            currentValue += amount;
+            if (currentValue < 0) currentValue = 0;
+            quantityInput.value = currentValue;
+        }
+
+        function calculateSavings() {
+            const rows = document.querySelectorAll('#rolesTable tbody tr');
+            let totalAnnualSavings = 0;
+
+            rows.forEach(row => {
+                const role = row.getAttribute('data-role');
+                const quantity = parseInt(row.querySelector('.roleQuantity').value);
+                
+                const professional = professionals.find(prof => prof.role === role);
+                const inHouseAnnualCost = professional.inhouse * quantity;
+                const nearshoreAnnualCost = professional.nearshore * quantity;
+                const annualSavings = inHouseAnnualCost - nearshoreAnnualCost;
+                
+                totalAnnualSavings += annualSavings;
+            });
+
+            document.getElementById('savingsResult').innerHTML = `<strong>Annual Savings: $${totalAnnualSavings.toLocaleString()}</strong>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            populateRoleTable();
+        });
+    </script>
+</body>
+</html>
